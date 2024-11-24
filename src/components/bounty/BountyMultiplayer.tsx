@@ -74,6 +74,7 @@ export default function BountyMultiplayer({
                     <DisplayAddress
                       address={participant.user_address}
                       chain={chain}
+                      showCopyIcon={true}
                     />
                     &nbsp;
                     {`${formatEther(BigInt(participant.amount))} ${
