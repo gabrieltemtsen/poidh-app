@@ -33,7 +33,10 @@ export default function AlbumList({ keyword = '' }: { keyword?: string }) {
           {albums
             .filter((album) => album.album)
             .map((album, idx) => (
-              <Link href={`/a/${encodeURIComponent(album.album)}`} key={idx}>
+              <Link
+                href={`/a/${encodeURIComponent(album.album || '')}`}
+                key={idx}
+              >
                 <div className='flex justify-between items-center px-4 py-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-xl text-white font-mono transition-transform hover:shadow-xl hover:bg-white/30 hover:cursor-pointer hover:border-poidhRed'>
                   <span className='truncate'>{album.album}</span>
                   <span className='opacity-80'>{album._count?.album}</span>

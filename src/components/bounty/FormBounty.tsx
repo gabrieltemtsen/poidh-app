@@ -374,12 +374,14 @@ export default function FormBounty({
                     className='px-3 py-1 hover:bg-[#D1ECFF]/20 cursor-pointer whitespace-nowrap'
                     onMouseDown={(e) => {
                       e.preventDefault();
-                      setAlbum(c.album);
+                      setAlbum(c.album || '');
                       setShowAlbumDropdown(false);
                     }}
                   >
-                    {c.album.length > 20 ? `${c.album.slice(0, 20)}…` : c.album}{' '}
-                    ({c._count.album})
+                    {c.album && c.album.length > 20
+                      ? `${c.album.slice(0, 20)}…`
+                      : c.album}{' '}
+                    ({c._count?.album})
                   </li>
                 ))}
               </ul>

@@ -495,7 +495,6 @@ export const appRouter = createTRPCRouter({
             is_multiplayer: true,
             in_progress: true,
             is_canceled: true,
-            created_at: true,
             claims: {
               take: 1,
             },
@@ -512,7 +511,6 @@ export const appRouter = createTRPCRouter({
         isMultiplayer: bounty.is_multiplayer || false,
         inProgress: bounty.in_progress || false,
         hasClaims: bounty.claims.length > 0,
-        createdAt: bounty.created_at,
         isCanceled: bounty.is_canceled || false,
       }));
 
@@ -533,7 +531,6 @@ export const appRouter = createTRPCRouter({
                 is_multiplayer: true,
                 in_progress: true,
                 is_canceled: true,
-                created_at: true,
                 claims: { take: 1 },
               },
             },
@@ -553,7 +550,6 @@ export const appRouter = createTRPCRouter({
             inProgress: bounty.in_progress || false,
             hasClaims: (bounty.claims ?? []).length > 0,
             isCanceled: bounty.is_canceled || false,
-            createdAt: bounty.created_at,
           };
         }
       });
@@ -576,7 +572,7 @@ export const appRouter = createTRPCRouter({
           return a.inProgress ? -1 : 1;
         }
 
-        return Number(b.createdAt) - Number(a.createdAt);
+        return Number(b.id) - Number(a.id);
       });
 
       const claims = (
@@ -941,11 +937,11 @@ export const appRouter = createTRPCRouter({
         amountInContract: convertAmount({ price, amount: amountInContract }),
         totalPaid: convertAmount({
           price,
-          amount: stats?.paid.toString() ?? '0',
+          amount: stats?.paid?.toString() ?? '0',
         }),
         totalEarn: convertAmount({
           price,
-          amount: stats?.earned.toString() ?? '0',
+          amount: stats?.earned?.toString() ?? '0',
         }),
       };
 
@@ -1169,27 +1165,27 @@ export const appRouter = createTRPCRouter({
               initialScore?.base ??
               (user.chain_id === 8453
                 ? scoreETH({
-                    earned: user.earned,
-                    paid: user.paid,
-                    NFTheld: user.nfts,
+                    earned: user.earned ?? 0,
+                    paid: user.paid ?? 0,
+                    NFTheld: user.nfts ?? 0,
                   })
                 : initialScore?.base),
             degen:
               initialScore?.degen ??
               (user.chain_id === 666666666
                 ? scoreDegen({
-                    earned: user.earned,
-                    paid: user.paid,
-                    NFTheld: user.nfts,
+                    earned: user.earned ?? 0,
+                    paid: user.paid ?? 0,
+                    NFTheld: user.nfts ?? 0,
                   })
                 : initialScore?.degen),
             arbitrum:
               initialScore?.arbitrum ??
               (user.chain_id === 42161
                 ? scoreETH({
-                    earned: user.earned,
-                    paid: user.paid,
-                    NFTheld: user.nfts,
+                    earned: user.earned ?? 0,
+                    paid: user.paid ?? 0,
+                    NFTheld: user.nfts ?? 0,
                   })
                 : initialScore?.arbitrum),
           };
@@ -1248,21 +1244,21 @@ export const appRouter = createTRPCRouter({
           for (const row of userRows) {
             if (row.chain_id === 8453) {
               baseScore = scoreETH({
-                earned: row.earned,
-                paid: row.paid,
-                NFTheld: row.nfts,
+                earned: row.earned ?? 0,
+                paid: row.paid ?? 0,
+                NFTheld: row.nfts ?? 0,
               });
             } else if (row.chain_id === 666666666) {
               degenScore = scoreDegen({
-                earned: row.earned,
-                paid: row.paid,
-                NFTheld: row.nfts,
+                earned: row.earned ?? 0,
+                paid: row.paid ?? 0,
+                NFTheld: row.nfts ?? 0,
               });
             } else if (row.chain_id === 42161) {
               arbitrumScore = scoreETH({
-                earned: row.earned,
-                paid: row.paid,
-                NFTheld: row.nfts,
+                earned: row.earned ?? 0,
+                paid: row.paid ?? 0,
+                NFTheld: row.nfts ?? 0,
               });
             }
           }
@@ -1409,7 +1405,7 @@ export const appRouter = createTRPCRouter({
                   { description: { contains: q, mode: 'insensitive' } },
                 ],
               }),
-          ...(input.cursor ? { created_at: { lt: input.cursor } } : {}),
+          ...(input.cursor ? { id: { lt: parseInt(input.cursor) } } : {}),
         },
         include: {
           claims: {
@@ -1421,13 +1417,13 @@ export const appRouter = createTRPCRouter({
             },
           },
         },
-        orderBy: { created_at: 'desc' },
+        orderBy: { id: 'desc' },
         take: input.limit,
       });
 
       let nextCursor: string | undefined = undefined;
       if (items.length === input.limit) {
-        nextCursor = items[items.length - 1].created_at.toString();
+        nextCursor = items[items.length - 1].id.toString();
       }
 
       return {
